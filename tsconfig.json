@@ -8,7 +8,6 @@
       "path": "./tsconfig.node.json"
     }
   ],
-  "include": ["./vitest.setup.ts"],
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {

@@ -12,7 +12,10 @@ export default defineConfig({
     globals: true,
     environment: 'jsdom',
     css: true,
-    setupFiles: ['./vitest.setup.ts'],
+  },
+  server: {
+    host: '0.0.0.0',
+    port: 3000,
   },
   resolve: {
     alias: {
