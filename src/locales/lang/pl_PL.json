@@ -1,0 +1,85 @@
+{
+  "cookie_consent": {
+    "title": "Zgoda na używanie ciasteczek",
+    "content": "Używamy cookies, aby zapewnić Ci nejlepsze doświadczenie z przebywania na stronie. Po więcej informacji o tym jak używamy cookies, prosimy o zapoznanie się z naszą polityką prywatności.",
+    "learn_more": "Dowiedz się więcej",
+    "accept_pt1": "Klikając ",
+    "accept_pt2": "wyrażasz zgodę na używanie ciasteczek.",
+    "accept": "Akceptuję",
+    "decline": "Odmawiam"
+  },
+  "menu": {
+    "home": "Strona Główna",
+    "users": "Użytkownicy",
+    "counter": "Licznik",
+    "login": "Zaloguj się",
+    "logout": "Wyloguj się",
+    "search": "Szukaj..."
+  },
+  "theme": {
+    "light": "Jasny",
+    "dark": "Ciemny",
+    "system": "System"
+  },
+  "user_dropdown": {
+    "profile": "Profil",
+    "my_account": "Moje Konto",
+    "settings": "Ustawienia",
+    "select_language": "Wybierz język",
+    "en": "Angielski",
+    "pl": "Polski",
+    "logout": "Wyloguj się",
+    "login": "Zaloguj się",
+    "register": "Zarejestruj się"
+  },
+  "users": {
+    "t1": "Użytkownicy",
+    "t2": "Tabela Użytkowników",
+    "f1": "Wprowadź dane użytkownika do formularza",
+    "id": "ID",
+    "name": "Imię",
+    "name_placeholder": "Wpisz Imię...",
+    "name_validation": "Nazwa użytkownika musi mieć co najmniej 2 znaki",
+    "email": "Email",
+    "email_placeholder": "Wpisz Email...",
+    "email_validation": "Nazwa użytkownika musi mieć co najmniej 2 znaki",
+    "role": "Rola",
+    "role_placeholder": "Wpisz Rolę...",
+    "role_validation": "Należy wybrać rolę",
+    "actions": "Akcje",
+    "submit": "Wyślij",
+    "reset": "Resetuj",
+    "update": "Aktualizuj",
+    "delete": "Usuń",
+    "add": "Dodaj Użytkownika",
+    "role_not_found": "Rola nie znaleziona"
+  },
+  "app": {
+    "name": "Shadcn"
+  },
+  "home": {
+    "section1": "Shadcn CRA Starter",
+    "section2": "React Typescript Szablon",
+    "title": "React Typescript Nauka",
+    "subtitle": "Aplikacja testowa",
+    "details": "Ta aplikacja powstała z myślą o nauce FE. Jest to prosta aplikacja składająca się z kilku stron i komponentów.\nAplikacja korzysta z React with Typescript, Redux, Redux-Saga, React-Router itp.",
+    "contact": "Możesz się ze mną skontaktować poprzez github: xcodeassociated"
+  },
+  "counter": {
+    "title": "Licznik",
+    "subtitle": "React Redux Licznik",
+    "increment": "Zwiększ",
+    "decrement": "Zmniejsz",
+    "increment_by": "Zwiększ o",
+    "add_amount": "Dodaj",
+    "add_async": "Dodaj asynchronicznie",
+    "add_if_odd": "Dodaj jeśli nieparzyste"
+  },
+  "footer": {
+    "text": "Stworzono z ❤\uFE0F & Shadcn"
+  },
+  "error": {
+    "unauthorized": "Brak dostępu",
+    "not_found": "Nie znaleziono strony"
+  }
+}

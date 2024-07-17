@@ -1,0 +1,6 @@
+query getAllPermissions($page: Int, $size: Int, $sort: String, $direction: String) {
+  getAllPermissions(page: $page, size: $size, sort: $sort, direction: $direction) {
+    id
+    name
+  }
+}

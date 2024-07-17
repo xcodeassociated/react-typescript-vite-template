@@ -14,13 +14,13 @@ RUN npm install
 # Copy app source code to the working directory
 COPY . .
 
-## Generate types
-#RUN npm run generate:graphql
+# Generate types
+RUN npm run generate:graphql
 
 RUN node node_modules/esbuild/install.js
 
-# Build the app
-RUN npm run build
+# Build the prod app
+RUN NODE_ENV=production npm run build
 
 # Use NGINX as the production server
 FROM nginx:stable-alpine-slim
