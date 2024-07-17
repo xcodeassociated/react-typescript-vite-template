@@ -2,7 +2,7 @@ name: NodeJS with Webpack
 
 on:
   push:
-    branches: ['main', 'release/*']
+    branches: ['**']
   pull_request:
     branches: ['**']
 
@@ -24,6 +24,9 @@ jobs:
 
       - name: Install dependencies
         run: npm install
+
+      - name: Codegen
+        run: npm run generate:graphql
 
       - name: Run the tests
         run: npm test
