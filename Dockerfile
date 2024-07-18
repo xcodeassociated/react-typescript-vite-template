@@ -1,5 +1,5 @@
 # Use an official Node.js runtime as the base image
-FROM node:18 as build-stage
+FROM oven/bun:1.1-slim as build-stage
 LABEL authors="xcodeassociated"
 
 # Set working directory
@@ -9,18 +9,16 @@ WORKDIR /app
 COPY package*.json ./
 
 # Install dependencies
-RUN npm install
+RUN bun install --frozen-lockfile
 
 # Copy app source code to the working directory
 COPY . .
 
 # Generate types
-RUN npm run generate:graphql
-
-RUN node node_modules/esbuild/install.js
+RUN bun run generate:graphql
 
 # Build the prod app
-RUN NODE_ENV=production npm run build
+RUN NODE_ENV=production bun run build
 
 # Use NGINX as the production server
 FROM nginx:stable-alpine-slim
