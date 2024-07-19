@@ -1,5 +1,5 @@
+import { beforeAll, afterAll, afterEach, describe, expect, it } from 'vitest'
 import { render, screen, waitFor } from '@testing-library/react'
-import { expect } from 'vitest'
 import React, { act } from 'react'
 import { BrowserRouter } from 'react-router-dom'
 import { Users } from './Users'
@@ -73,7 +73,7 @@ describe('user component tests', () => {
     server.close()
   })
 
-  test('renders users component', async () => {
+  it('renders users component', async () => {
     await act(async () =>
       render(
         <React.StrictMode>

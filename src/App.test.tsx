@@ -1,4 +1,4 @@
-import { expect, vi } from 'vitest'
+import { describe, expect, it, vi, beforeAll } from 'vitest'
 import React, { act } from 'react'
 import { render, screen, waitFor } from '@testing-library/react'
 import { ThemeProvider } from '@/components/theme-provider.tsx'
