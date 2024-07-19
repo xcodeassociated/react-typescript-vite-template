@@ -46,6 +46,16 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Make env file for production
+        uses: SpicyPizza/create-envfile@v2.0
+        with:
+          envkey_VITE_APP_DOMAIN: ${{ secrets.DOCKERHUB_USERNAME }}
+          envkey_VITE_APP_KEYCLOAK_URL: ${{ secrets.DOCKERHUB_USERNAME }}
+          envkey_VITE_APP_BACKEND_URL: ${{ secrets.DOCKERHUB_USERNAME }}
+          directory: .
+          file_name: .env.production
+          fail_on_empty: true
+          sort_keys: false
       - name: Build and push
         uses: docker/build-push-action@v6
         with:

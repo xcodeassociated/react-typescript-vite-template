@@ -26,3 +26,5 @@ coverage
 
 src/graphql/*.ts
 src/graphql/*.js
+
+.env.*
