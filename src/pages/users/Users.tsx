@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Page } from './api/usersApi.types'
@@ -11,6 +11,14 @@ import { UserDialog } from './components/user-dialog'
 import { useUserColumns } from '@/pages/users/hooks/useColumns'
 import { LoadingScreenMemo } from '@/components/app/loading-screen'
 import { usersApi } from '@/pages/users/api/usersApi.ts'
+import { useSearchParams } from 'react-router-dom'
+
+type UsersSearchParams = {
+  page: number
+  size: number
+  sort: string
+  desc: boolean
+}
 
 const buildPage = (pagination: PaginationState, sorting: SortingState): Page => {
   return new Page(pagination.pageIndex, pagination.pageSize, sorting[0].id, sorting[0].desc ? 'DESC' : 'ASC')
@@ -21,11 +29,26 @@ const toPayload = (data: Page): PayloadAction<{ page: number; pageSize: number; 
 }
 
 export const Users: React.FC = () => {
+  const [searchParams, setSearchParams] = useSearchParams()
+  const getSearchParams = (): UsersSearchParams => {
+    return {
+      page: (searchParams.get('page') && parseInt(searchParams.get('page')!)) || 0,
+      size: (searchParams.get('size') && parseInt(searchParams.get('size')!)) || 5,
+      sort: (searchParams.get('sort') && searchParams.get('sort')!) || '_id',
+      desc: (searchParams.get('desc') && searchParams.get('desc')! === 'true') || false,
+    }
+  }
+
   const [pagination, setPagination] = useState<PaginationState>({
-    pageIndex: 0,
-    pageSize: 5,
+    pageIndex: getSearchParams().page,
+    pageSize: getSearchParams().size,
   })
-  const [sorting, setSorting] = React.useState<SortingState>([{ id: '_id', desc: false }])
+  const [sorting, setSorting] = React.useState<SortingState>([
+    {
+      id: getSearchParams().sort,
+      desc: getSearchParams().desc,
+    },
+  ])
 
   const { roles } = useRolesGraphql()
   const users = usersApi.useGetAllUsersQuery(toPayload(buildPage(pagination, sorting)))
@@ -33,6 +56,24 @@ export const Users: React.FC = () => {
   const [createUser] = usersApi.useCreateUserMutation()
   const { t } = useTranslation(['main'])
   const columns = useUserColumns()
+
+  useEffect(() => {
+    const params = getSearchParams()
+    setPagination({ pageIndex: params.page, pageSize: params.size })
+    setSorting([{ id: params.sort, desc: params.desc }])
+  }, [searchParams])
+
+  useEffect(() => {
+    const params: UsersSearchParams = {
+      page: pagination.pageIndex,
+      size: pagination.pageSize,
+      sort: sorting[0].id,
+      desc: sorting[0].desc,
+    }
+    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+    // @ts-expect-error
+    setSearchParams(params)
+  }, [pagination, sorting])
 
   if (users.isLoading) {
     return <LoadingScreenMemo />
