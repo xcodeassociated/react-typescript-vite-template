@@ -20,6 +20,15 @@ type UsersSearchParams = {
   desc: boolean
 }
 
+const toString = (params: UsersSearchParams) => {
+  return {
+    page: `${params.page}`,
+    size: `${params.size}`,
+    sort: `${params.sort}`,
+    desc: `${params.desc}`,
+  }
+}
+
 const buildPage = (pagination: PaginationState, sorting: SortingState): Page => {
   return new Page(pagination.pageIndex, pagination.pageSize, sorting[0].id, sorting[0].desc ? 'DESC' : 'ASC')
 }
@@ -28,16 +37,29 @@ const toPayload = (data: Page): PayloadAction<{ page: number; pageSize: number; 
   return { payload: { page: data.page, pageSize: data.pageSize, sort: data.sort, direction: data.direction }, type: '' }
 }
 
-export const Users: React.FC = () => {
-  const [searchParams, setSearchParams] = useSearchParams()
+export type UsersProps = {
+  // props goes here...
+}
+
+export const Users: React.FC<UsersProps> = (/* props: UsersProps */) => {
   const getSearchParams = (): UsersSearchParams => {
     return {
-      page: (searchParams.get('page') && parseInt(searchParams.get('page')!)) || 0,
-      size: (searchParams.get('size') && parseInt(searchParams.get('size')!)) || 5,
-      sort: (searchParams.get('sort') && searchParams.get('sort')!) || '_id',
-      desc: (searchParams.get('desc') && searchParams.get('desc')! === 'true') || false,
+      page: searchParams.has('page') ? parseInt(searchParams.get('page')!) : 0,
+      size: searchParams.has('size') ? parseInt(searchParams.get('size')!) : 5,
+      sort: searchParams.has('sort') ? searchParams.get('sort')! : '_id',
+      desc: searchParams.has('desc') ? searchParams.get('desc')! === 'true' : false,
     }
   }
+
+  const createSearchParams = (): UsersSearchParams => {
+    return {
+      page: pagination.pageIndex,
+      size: pagination.pageSize,
+      sort: sorting[0].id,
+      desc: sorting[0].desc,
+    }
+  }
+  const [searchParams, setSearchParams] = useSearchParams()
 
   const [pagination, setPagination] = useState<PaginationState>({
     pageIndex: getSearchParams().page,
@@ -64,15 +86,16 @@ export const Users: React.FC = () => {
   }, [searchParams])
 
   useEffect(() => {
-    const params: UsersSearchParams = {
-      page: pagination.pageIndex,
-      size: pagination.pageSize,
-      sort: sorting[0].id,
-      desc: sorting[0].desc,
-    }
-    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-    // @ts-expect-error
-    setSearchParams(params)
+    const params = createSearchParams()
+    setSearchParams(
+      (prevParams) => {
+        return new URLSearchParams({
+          ...Object.fromEntries(prevParams.entries()),
+          ...toString(params),
+        })
+      },
+      { replace: true }
+    )
   }, [pagination, sorting])
 
   if (users.isLoading) {
