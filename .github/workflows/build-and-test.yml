@@ -62,4 +62,4 @@ jobs:
           context: .
           push: true
           platforms: linux/${{ matrix.architecture }}
-          tags: xcodeassociated/react-typescript-vite-template_${{ matrix.architecture }}:latest
+          tags: xcodeassociated/react-typescript-vite-template:latest-${{ matrix.architecture }}
