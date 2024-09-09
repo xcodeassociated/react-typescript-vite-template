@@ -9,7 +9,6 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v4
 
@@ -30,10 +29,11 @@ jobs:
           CI: false
 
   docker:
-
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        architecture: [ amd64, arm64 ]
     needs: build
-
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -61,4 +61,5 @@ jobs:
         with:
           context: .
           push: true
-          tags: xcodeassociated/react-typescript-vite-template:latest
+          platforms: linux/${{ matrix.architecture }}
+          tags: xcodeassociated/react-typescript-vite-template_${{ matrix.architecture }}:latest
