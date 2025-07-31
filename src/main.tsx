@@ -22,10 +22,8 @@ const onKeycloakEvent = (_event: AuthClientEvent, error?: AuthClientError): void
   }
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars,@typescript-eslint/ban-ts-comment
-// @ts-expect-error
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-const onKeycloakTokens = (tokens: AuthClientTokens): void => {
+const onKeycloakTokens = (_tokens: AuthClientTokens): void => {
   // handle keycloak token
   // console.info("Keycloak token: " + JSON.stringify(tokens))
 }
@@ -58,6 +56,7 @@ root.render(
     initOptions={{
       onLoad: 'check-sso',
       silentCheckSsoRedirectUri: import.meta.env.VITE_APP_DOMAIN + '/silent-check-sso.html',
+      checkLoginIframe: false,
     }}
   >
     <React.StrictMode>

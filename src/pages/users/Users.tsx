@@ -37,9 +37,7 @@ const toPayload = (data: Page): PayloadAction<{ page: number; pageSize: number; 
   return { payload: { page: data.page, pageSize: data.pageSize, sort: data.sort, direction: data.direction }, type: '' }
 }
 
-export type UsersProps = {
-  // props goes here...
-}
+export type UsersProps = Record<string, never>
 
 export const Users: React.FC<UsersProps> = (/* props: UsersProps */) => {
   const getSearchParams = (): UsersSearchParams => {

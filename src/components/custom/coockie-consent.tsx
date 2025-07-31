@@ -47,10 +47,10 @@ export default function CookieConsent({ demo, onAcceptCallback, onDeclineCallbac
           }, 700)
         }
       }
-    } catch (e) {
+    } catch {
       // console.log("Error: ", e);
     }
-  }, [])
+  }, [demo])
 
   return (
     <div
