@@ -9,7 +9,7 @@
     "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
     "prod": "serve -s dist",
-    "test": "vitest",
+    "test": "vitest --run",
     "test:ui": "vitest --ui",
     "coverage": "vitest run --coverage",
     "generate:graphql": "graphql-codegen --config codegen.ts"
@@ -47,21 +47,21 @@
     "zod": "^3.24.1"
   },
   "devDependencies": {
-    "@testing-library/jest-dom": "^6.6.3",
-    "@testing-library/react": "^16.1.0",
-    "@testing-library/user-event": "^14.5.2",
-    "@types/jest": "^29.5.14",
-    "@types/node": "^22.10.2",
-    "@types/react": "^18.3.13",
-    "@types/react-dom": "^18.3.1",
-    "@types/keycloak-js": "^3.4.1",
-    "@types/react-i18next": "^8.1.0",
-    "@types/react-router-dom": "^5.3.3",
-    "@types/redux-persist": "^4.3.1",
     "@graphql-codegen/cli": "^5.0.7",
     "@graphql-codegen/client-preset": "^4.5.1",
     "@graphql-codegen/typescript-operations": "^4.3.1",
     "@graphql-codegen/typescript-react-apollo": "^4.3.3",
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/react": "^16.1.0",
+    "@testing-library/user-event": "^14.5.2",
+    "@types/jest": "^29.5.14",
+    "@types/keycloak-js": "^3.4.1",
+    "@types/node": "^22.10.2",
+    "@types/react": "^18.3.13",
+    "@types/react-dom": "^18.3.1",
+    "@types/react-i18next": "^8.1.0",
+    "@types/react-router-dom": "^5.3.3",
+    "@types/redux-persist": "^4.3.1",
     "@typescript-eslint/eslint-plugin": "^8.18.2",
     "@typescript-eslint/parser": "^8.18.2",
     "@vitejs/plugin-react-swc": "^3.7.2",
@@ -75,6 +75,7 @@
     "eslint-plugin-react-hooks": "^5.0.0",
     "eslint-plugin-react-refresh": "^0.4.16",
     "jsdom": "^25.0.1",
+    "msw": "^2.7.0",
     "postcss": "^8.4.49",
     "prettier": "^3.4.2",
     "prettier-plugin-tailwindcss": "^0.6.9",
@@ -82,7 +83,6 @@
     "typescript": "^5.7.2",
     "vite": "^5.4.11",
     "vite-tsconfig-paths": "^5.1.4",
-    "vitest": "^2.1.8",
-    "msw": "^2.7.0"
+    "vitest": "^2.1.8"
   }
 }
