@@ -14,32 +14,28 @@ export const useRolesGraphql = () => {
   })
 
   useEffect(() => {
-    if (!roles) {
+    if (!roles && !loading && !error && data) {
       getRoles()
+    }
+
+    return () => {
+      setRoles(undefined)
     }
   }, [data, loading, error])
 
   const getRoles = () => {
-    if (error) {
-      console.error(`apollo error: ` + error.message)
-    }
-
-    if (loading) {
-      // ...
-    }
-
-    if (data) {
-      const permissions: Role[] | undefined = data.getAllPermissions?.map((e) => {
-        return {
-          _id: e?.id,
-          name: e?.name,
-        } as Role
-      })
-      setRoles([...permissions!])
-    }
+    const permissions: Role[] | undefined = data?.getAllPermissions?.map((e) => {
+      return {
+        _id: e?.id,
+        name: e?.name,
+      } as Role
+    })
+    setRoles([...permissions!])
   }
 
   return {
     roles,
+    loading,
+    error,
   }
 }

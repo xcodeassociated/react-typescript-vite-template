@@ -12,6 +12,7 @@ import { useUserColumns } from '@/pages/users/hooks/useColumns'
 import { LoadingScreenMemo } from '@/components/app/loading-screen'
 import { usersApi } from '@/pages/users/api/usersApi.ts'
 import { useSearchParams } from 'react-router-dom'
+import { useSimpleSSE } from '@/pages/users/hooks/useSseUsers.tsx'
 
 type UsersSearchParams = {
   page: number
@@ -96,12 +97,45 @@ export const Users: React.FC<UsersProps> = (/* props: UsersProps */) => {
     )
   }, [pagination, sorting])
 
+  const { connectionStatus, lastMessage } = useSimpleSSE(import.meta.env.VITE_APP_BACKEND_URL + '/update/user', {
+    onUpdate: (message) => {
+      console.log('User update received:', message)
+      console.log('Refetching users...')
+      users.refetch()
+    },
+    onConnect: () => {
+      console.log('Connected to SSE stream')
+    },
+    onError: (error) => {
+      console.error('SSE error:', error)
+    },
+  })
+
   if (users.isLoading) {
     return <LoadingScreenMemo />
   }
 
+  if (users.isError) {
+    return (
+      <>
+        {/* todo: refactor by creating a custom control component */}
+        <div className="sse-bar">
+          <span className={`status ${connectionStatus}`}>Status: {connectionStatus} </span>
+          {lastMessage && <span>Last update: {lastMessage.content}</span>}
+        </div>
+        <div>Error</div>
+      </>
+    )
+  }
+
   return (
     <>
+      {/* todo: refactor by creating a custom control component */}
+      <div className="sse-bar">
+        <span className={`status ${connectionStatus}`}>Status: {connectionStatus} </span>
+        {lastMessage && <span>Last update: {lastMessage.content}</span>}
+      </div>
+
       <Card>
         <CardHeader>
           <CardTitle>{t(`users.t1`, { ns: ['main'] })}</CardTitle>
