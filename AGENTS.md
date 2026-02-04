@@ -209,7 +209,7 @@ The repository does **not** contain a `.cursor/` directory or a `.github/copilot
 
 ---
 
-**Agent Restrictions**: Agents must not modify any files outside the project directory. They also may not commit changes without explicit user permission; always ask for review before committing.
+**Agent Restrictions**: Agents must not modify any files outside the project directory. **CRITICAL:** Agents must **never** commit any changes without **explicit user permission**. ALWAYS ask for review and obtain approval **before** running any `git add` / `git commit` commands.
 
 **Shell Environment**: Agents should execute commands using **zsh** (as the user’s default shell) to ensure compatibility with tools installed in that environment.
 
