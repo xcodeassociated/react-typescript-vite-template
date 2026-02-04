@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom'
-import { useLocation } from 'react-router'
+import { useLocation } from 'react-router-dom'
 import { NavigationMenuItem, NavigationMenuLink, navigationMenuTriggerStyle } from '@/components/ui/navigation-menu'
 import { MenuItem } from '@/components/app/menu-item'
 

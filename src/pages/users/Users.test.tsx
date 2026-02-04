@@ -2,8 +2,6 @@ import { beforeAll, afterAll, afterEach, describe, expect, it, vitest } from 'vi
 import { render, screen, waitFor } from '@testing-library/react'
 import React, { act } from 'react'
 import { BrowserRouter } from 'react-router-dom'
-import { Users } from './Users'
-import { MockedProvider } from '@apollo/client/testing'
 import { GetAllPermissionsDocument } from '@/graphql/generated'
 import { store } from '@/store/store'
 import { http, HttpResponse } from 'msw'
@@ -12,6 +10,28 @@ import { usersApi } from './api/usersApi'
 import { Provider } from 'react-redux'
 import '@/locales/i18n'
 import { ThemeProvider } from '@/components/theme-provider'
+
+// Mock the roles GraphQL hook to provide static role data
+vi.mock('./hooks/useRolesGraphql', () => ({
+  useRolesGraphql: () => ({
+    roles: [
+      {
+        _id: '63c16ce71ba30e5f08b4d66e',
+        name: 'GUEST',
+        description: 'Anonymous user who can only read info',
+        version: undefined,
+        createdBy: undefined,
+        createdDate: undefined,
+        modifiedBy: undefined,
+        modifiedDate: undefined,
+      },
+    ],
+    loading: false,
+    error: undefined,
+  }),
+}))
+
+import { MockedProvider } from '@apollo/client/testing/react'
 
 const mockedRolesGql = {
   request: {
@@ -61,17 +81,21 @@ server.events.on('request:start', ({ request }) => {
 
 describe('user component tests', () => {
   beforeAll(() => {
-    ;(global as any).EventSource = vitest.fn().mockImplementation((url: string) => ({
-      url,
-      readyState: 1,
-      addEventListener: vitest.fn(),
-      removeEventListener: vitest.fn(),
-      close: vitest.fn(),
-      dispatchEvent: vitest.fn(),
-      onopen: null,
-      onmessage: null,
-      onerror: null,
-    }))
+    ;(global as any).EventSource = class {
+      url: string
+      readyState = 1
+      addEventListener = vitest.fn()
+      removeEventListener = vitest.fn()
+      close = vitest.fn()
+      dispatchEvent = vitest.fn()
+      onopen: any = null
+      onmessage: any = null
+      onerror: any = null
+      constructor(url: string) {
+        this.url = url
+      }
+    }
+
     server.listen()
     act(() => store.dispatch(usersApi.util.resetApiState()))
   })
@@ -87,13 +111,14 @@ describe('user component tests', () => {
   })
 
   it('renders users component', async () => {
+    const { Users } = await import('./Users')
     await act(async () =>
       render(
         <React.StrictMode>
           <ThemeProvider>
             <Provider store={store}>
               <BrowserRouter>
-                <MockedProvider mocks={[mockedRolesGql]} addTypename={false}>
+                <MockedProvider mocks={[mockedRolesGql]}>
                   <Users />
                 </MockedProvider>
               </BrowserRouter>
