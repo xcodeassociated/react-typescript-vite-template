@@ -215,4 +215,8 @@ The repository does **not** contain a `.cursor/` directory or a `.github/copilot
 
 **Node Version Management**: Agents must always verify that **nvm** (Node Version Manager) is installed before invoking any `node` or `npm` commands. If `nvm` is not available, they should inform the user and suggest installing it. Agents should never run Node directly without first ensuring the appropriate version is selected via `nvm`.
 
+**Package Manager Preference**: All dependency management should be performed using **bun**. Agents must use `bun install` (or `bun add`/`bun remove` as appropriate) instead of `npm install`. Before running any bun command, agents must check that **bun** is installed; if it is missing, they should inform the user and suggest installing bun (e.g., via `curl -fsSL https://bun.sh/install | bash`).
+
+**Branch Management**: Agents must avoid making code changes directly on the **main** (or **master**) branch. Any modification to code should be performed on a separate feature branch. Agents should always ask for explicit user permission before creating a new branch, and must recommend creating one when working on the main branch.
+
 _End of file – agents should keep this document up to date as the project evolves._
