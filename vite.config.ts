@@ -2,7 +2,6 @@
 /// <reference types="vitest" />
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react-swc'
-// @ts-ignore
 import tailwind from '@tailwindcss/vite'
 import path from 'path'
 import tsconfigPaths from 'vite-tsconfig-paths'
@@ -10,7 +9,8 @@ import tsconfigPaths from 'vite-tsconfig-paths'
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [react(), tailwind(), tsconfigPaths()],
-  // @ts-ignore
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-expect-error
   test: {
     globals: true,
     environment: 'jsdom',

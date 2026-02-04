@@ -23,7 +23,7 @@ export const useSimpleSSE = (url: string, options: SSEOptions = {}) => {
   const retryTimeoutRef = useRef<NodeJS.Timeout | null>(null)
   const optionsRef = useRef(options)
   const retryCountRef = useRef(0)
-  const maxAttempts = optionsRef.current.maxRetries || 5
+  const maxAttempts = options.maxRetries ?? 5
 
   // Update options ref
   useEffect(() => {

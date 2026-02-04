@@ -88,9 +88,9 @@ describe('user component tests', () => {
       removeEventListener = vitest.fn()
       close = vitest.fn()
       dispatchEvent = vitest.fn()
-      onopen: any = null
-      onmessage: any = null
-      onerror: any = null
+      onopen: ((ev: Event) => void) | null = null
+      onmessage: ((ev: MessageEvent) => void) | null = null
+      onerror: ((ev: Event) => void) | null = null
       constructor(url: string) {
         this.url = url
       }

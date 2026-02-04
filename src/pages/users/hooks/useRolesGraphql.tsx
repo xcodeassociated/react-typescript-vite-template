@@ -1,4 +1,5 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, useCallback } from 'react'
+
 import { Role } from '../api/usersApi.types'
 import { useGetAllPermissionsQuery } from '@/graphql/generated'
 
@@ -13,25 +14,26 @@ export const useRolesGraphql = () => {
     },
   })
 
+  const getRoles = useCallback(() => {
+    const permissions =
+      data?.getAllPermissions?.map(
+        (e: Role) =>
+          ({
+            _id: e?._id,
+            name: e?.name,
+          }) as Role
+      ) ?? []
+    setRoles(permissions)
+  }, [data])
+
   useEffect(() => {
     if (!roles && !loading && !error && data) {
       getRoles()
     }
-
     return () => {
       setRoles(undefined)
     }
-  }, [data, loading, error])
-
-  const getRoles = () => {
-    const permissions: Role[] | undefined = data?.getAllPermissions?.map((e) => {
-      return {
-        _id: e?.id,
-        name: e?.name,
-      } as Role
-    })
-    setRoles([...permissions!])
-  }
+  }, [roles, loading, error, data, getRoles])
 
   return {
     roles,
