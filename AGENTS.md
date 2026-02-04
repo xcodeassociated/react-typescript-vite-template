@@ -211,4 +211,8 @@ The repository does **not** contain a `.cursor/` directory or a `.github/copilot
 
 **Agent Restrictions**: Agents must not modify any files outside the project directory. They also may not commit changes without explicit user permission; always ask for review before committing.
 
+**Shell Environment**: Agents should execute commands using **zsh** (as the user’s default shell) to ensure compatibility with tools installed in that environment.
+
+**Node Version Management**: Agents must always verify that **nvm** (Node Version Manager) is installed before invoking any `node` or `npm` commands. If `nvm` is not available, they should inform the user and suggest installing it. Agents should never run Node directly without first ensuring the appropriate version is selected via `nvm`.
+
 _End of file – agents should keep this document up to date as the project evolves._
