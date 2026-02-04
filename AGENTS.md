@@ -209,4 +209,6 @@ The repository does **not** contain a `.cursor/` directory or a `.github/copilot
 
 ---
 
+**Agent Restrictions**: Agents must not modify any files outside the project directory. They also may not commit changes without explicit user permission; always ask for review before committing.
+
 _End of file – agents should keep this document up to date as the project evolves._
