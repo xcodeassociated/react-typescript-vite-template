@@ -1,12 +1,12 @@
 # Use an official Node.js runtime as the base image
-FROM oven/bun:1.1-slim as build-stage
+FROM oven/bun:1.3.9-slim as build-stage
 LABEL authors="xcodeassociated"
 
 # Set working directory
 WORKDIR /app
 
 # Copy package.json and package-lock.json to the working directory
-COPY package*.json ./
+COPY package.json bun.lockb ./
 
 # Install dependencies
 RUN bun install --frozen-lockfile
