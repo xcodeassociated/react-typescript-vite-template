@@ -26,15 +26,23 @@
 ## Project Overview
 
 - **Tech Stack**: React 18, TypeScript, Vite, Tailwind CSS, Redux Toolkit (with persistence), Apollo Client, Keycloak, i18next.
-- **Package Manager**: `npm` / `bun`. All scripts are defined in `package.json` and are **compatible with `bun run <script>`**.
+- **Package Manager**: `bun`. All scripts are defined in `package.json` and are **compatible with `bun run <script>`**.
 - **Path Alias**: `@/*` resolves to `src/*` (defined in `vite.config.ts` & `tsconfig.json`).
-- **Code Generation**: GraphQL types & hooks are generated via `npm run generate:graphql`.
+- **Code Generation**: GraphQL types & hooks are generated via `bun run generate:graphql`.
 - **Testing**: Vitest + React Testing Library + MSW for API mocking.
 - **Formatting**: Prettier with `prettier-plugin-tailwindcss` (installed but configuration falls back to defaults).
 
 ---
 
 ## Common Development Commands
+
+**CRITICAL:** Before running any tests or building the project, **always regenerate the GraphQL files** to ensure they are up‑to‑date. Run:
+
+```bash
+bun run generate:graphql
+```
+
+This command re‑generates the GraphQL types and hooks (e.g., `src/graphql/generated.ts`). It must be executed any time the GraphQL schema changes and must be run before `bun run test` or `bun run build`. Ensure this step is included in any CI pipeline or local workflow.
 
 | Command                    | Description                                                         |
 | -------------------------- | ------------------------------------------------------------------- |
@@ -61,7 +69,7 @@ Agents often need to run or debug a specific test file. Use any of the following
   bun run test -- src/pages/dashboard/Dashboard.test.ts --run
 ```
 
-**Tip:** The double‑dash `--` separates the npm script arguments from the script itself.
+**Tip:** The double‑dash `--` separates the bun script arguments from the script itself.
 
 ---
 
@@ -76,7 +84,7 @@ All agents should respect the linting rules defined in `.eslintrc.cjs`. The foll
 - **Single‑quotes** for strings, **double‑quotes** only when the string contains a single‑quote.
 - **Semi‑colons** are required (`semi: true`).
 - **Tailwind ordering**: thanks to `prettier-plugin-tailwindcss`, class names are automatically sorted alphabetically.
-- Run `npm run lint` (which runs ESLint with Prettier integration) before committing.
+- Run `bun run lint` (which runs ESLint with Prettier integration) before committing.
 
 ### Imports & Path Aliases
 
@@ -184,8 +192,8 @@ export const useAppSelector: TypedUseSelectorHook<RootState> = useSelector
 
 - The **ESLint** config extends `eslint:recommended`, `@typescript-eslint/recommended`, and `plugin:react-hooks/recommended`.
 - **Prettier** is enforced via `eslint-config-prettier` – any formatting deviation is reported as an ESLint error.
-- **`npm run lint`** fails on **any warning** (`--max-warnings 0`).
-- CI (GitHub Actions) runs `npm ci && npm run lint && npm run test && npm run coverage`.
+- **`bun run lint`** fails on **any warning** (`--max-warnings 0`).
+- CI (GitHub Actions) runs `bun install && bun run lint && bun run test && bun run coverage`.
 - No `--fix` flag is used in CI – agents must commit correctly formatted code.
 
 ---
@@ -209,15 +217,17 @@ The repository does **not** contain a `.cursor/` directory or a `.github/copilot
 
 ---
 
-**Agent Restrictions**: Agents must not modify any files outside the project directory. 
+**Agent Restrictions**: Agents must not modify any files outside the project directory.
+
+**CRITICAL:** Agents must **never** modify any auto‑generated files (e.g., GraphQL generated files such as `src/graphql/generated.ts`).
 
 **CRITICAL:** Agents must **never** commit any changes without **explicit user permission**. ALWAYS ask for review and obtain approval **before** running any `git add` / `git commit` commands.
 
 **Shell Environment**: Agents should execute commands using **zsh** (as the user’s default shell) to ensure compatibility with tools installed in that environment.
 
-**Node Version Management**: Agents must always verify that **nvm** (Node Version Manager) is installed before invoking any `node` or `npm` commands. If `nvm` is not available, they should inform the user and suggest installing it. Agents should never run Node directly without first ensuring the appropriate version is selected via `nvm`.
+**Node Version Management**: Agents must always verify that **nvm** (Node Version Manager) is installed before invoking any `node` commands. If `nvm` is not available, they should inform the user and suggest installing it. Agents should never run Node directly without first ensuring the appropriate version is selected via `nvm`.
 
-**Package Manager Preference**: All dependency management should be performed using **bun**. Agents must use `bun install` (or `bun add`/`bun remove` as appropriate) instead of `npm install`. Before running any bun command, agents must check that **bun** is installed; if it is missing, they should inform the user and suggest installing bun (e.g., via `curl -fsSL https://bun.sh/install | bash`).
+**Package Manager Preference**: All dependency management should be performed using **bun**. **Important:** Always use `bun` for all commands in this project; any other package manager must not be used. Agents must use `bun install` (or `bun add`/`bun remove` as appropriate) instead of any other package manager. Before running any bun command, agents must check that **bun** is installed; if it is missing, they should inform the user and suggest installing bun (e.g., via `curl -fsSL https://bun.sh/install | bash`).
 
 **Branch Management**: Agents must avoid making code changes directly on the **main** (or **master**) branch. Any modification to code should be performed on a separate feature branch. Agents should always ask for explicit user permission before creating a new branch, and must recommend creating one when working on the main branch.
 
