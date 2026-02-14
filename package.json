@@ -5,8 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "setup": "nvm install 22.12.0 && nvm use 22.12.0",
-    "build": "tsc -b && vite build",
+    "build": "vite build",
     "lint": "eslint -c .eslintrc.cjs . --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
     "prod": "serve -s dist",

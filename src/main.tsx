@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom/client'
 import { Provider } from 'react-redux'
 import { persistor, store } from './store/store'
 import { PersistGate } from 'redux-persist/integration/react'
-import { ApolloClient, ApolloProvider, createHttpLink, InMemoryCache } from '@apollo/client'
+import { ApolloClient, createHttpLink, InMemoryCache } from '@apollo/client'
 import { setContext } from '@apollo/client/link/context'
 import { ReactKeycloakProvider } from '@react-keycloak/web'
 import { AuthClientError, AuthClientEvent } from '@react-keycloak/core/lib/types'
@@ -15,6 +15,7 @@ import '@/locales/i18n'
 import './App.css'
 
 import { ThemeProvider } from '@/components/theme-provider'
+import { ApolloProvider } from '@apollo/client/react'
 
 const onKeycloakEvent = (_event: AuthClientEvent, error?: AuthClientError): void => {
   if (error) {
