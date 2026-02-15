@@ -13,8 +13,8 @@ function SideMenuItem({ item }: { item: MenuItem }) {
     <SheetClose asChild>
       <Label
         className={
-          (location.pathname === item.route ? 'text-xl' : 'text-xl text-muted-foreground') +
-          ' cursor-pointer rounded border bg-muted p-2 hover:text-foreground'
+          (location.pathname === item.route ? 'text-xl' : 'text-muted-foreground text-xl') +
+          ' bg-muted hover:text-foreground cursor-pointer rounded-sm border p-2'
         }
         onClick={() => navigate(item.route)}
       >
