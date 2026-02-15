@@ -10,28 +10,7 @@ import { usersApi } from './api/usersApi'
 import { Provider } from 'react-redux'
 import '@/locales/i18n'
 import { ThemeProvider } from '@/components/theme-provider'
-
-// Mock the roles GraphQL hook to provide static role data
-vi.mock('./hooks/useRolesGraphql', () => ({
-  useRolesGraphql: () => ({
-    roles: [
-      {
-        _id: '63c16ce71ba30e5f08b4d66e',
-        name: 'GUEST',
-        description: 'Anonymous user who can only read info',
-        version: undefined,
-        createdBy: undefined,
-        createdDate: undefined,
-        modifiedBy: undefined,
-        modifiedDate: undefined,
-      },
-    ],
-    loading: false,
-    error: undefined,
-  }),
-}))
-
-import { MockedProvider } from '@apollo/client/testing/react'
+import { MockedProvider } from '@apollo/client/testing'
 
 const mockedRolesGql = {
   request: {

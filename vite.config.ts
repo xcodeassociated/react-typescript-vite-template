@@ -13,7 +13,7 @@ export default defineConfig({
   // @ts-expect-error
   test: {
     globals: true,
-    environment: 'happy-dom',
+    environment: 'jsdom',
     css: true,
     setupFiles: [path.resolve(__dirname, './src/setupTests.ts')],
   },

@@ -84,12 +84,12 @@ export const useUserColumns = () => {
                       updateUser(data).then(() => {})
                     }}
                   >
-                    <Label className="group m-0 inline-flex w-full rounded-md bg-background px-2 py-2 text-sm font-normal transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-hidden">
+                    <Label className="group bg-background hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground m-0 inline-flex w-full rounded-md px-2 py-2 text-sm font-normal transition-colors focus:outline-hidden">
                       {t(`users.update`, { ns: ['main'] })}
                     </Label>
                   </UserDialog>
                   <Label
-                    className="group m-0 inline-flex w-full rounded-md bg-background px-2 py-2 text-sm font-normal transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground focus:outline-hidden"
+                    className="group bg-background hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground m-0 inline-flex w-full rounded-md px-2 py-2 text-sm font-normal transition-colors focus:outline-hidden"
                     onClick={() => deleteUser(user._id!)}
                   >
                     {t(`users.delete`, { ns: ['main'] })}
