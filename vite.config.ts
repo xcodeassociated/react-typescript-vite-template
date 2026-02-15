@@ -2,13 +2,13 @@
 /// <reference types="vitest" />
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react-swc'
-import tailwind from '@tailwindcss/vite'
+import tailwindcss from '@tailwindcss/vite'
 import path from 'path'
 import tsconfigPaths from 'vite-tsconfig-paths'
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [react(), tailwind(), tsconfigPaths()],
+  plugins: [react(), tailwindcss(), tsconfigPaths()],
   // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-expect-error
   test: {
