@@ -16,13 +16,6 @@ nvm install 22.12.0
 nvm use 22.12.0
 ```
 
-You can also use the provided npm script:
-
-```bash
-npm run setup
-```
-
-which will execute the above commands (assuming `nvm` is available in your shell).
 
 ## Expanding the ESLint configuration
 
