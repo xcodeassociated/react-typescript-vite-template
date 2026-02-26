@@ -2,13 +2,13 @@ import type { CodegenConfig } from '@graphql-codegen/cli'
 
 const config: CodegenConfig = {
   schema: './src/graphql/schema.graphql',
-  documents: './src/**/*.graphql',
+  documents: ['./src/**/*.{ts,tsx,graphql}'],
+  ignoreNoDocuments: true,
   generates: {
-    './src/graphql/generated.ts': {
-      plugins: ['typescript', 'typescript-operations', 'typescript-react-apollo'],
-      config: {
-        withHooks: true,
-        withResultType: true,
+    './src/graphql/generated/': {
+      preset: 'client',
+      presetConfig: {
+        fragmentMasking: { unmaskFunctionName: 'getFragmentData' },
       },
     },
   },

@@ -10,12 +10,7 @@ import {
   SortingState,
   useReactTable,
 } from '@tanstack/react-table'
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-expect-error
-import { OnChangeFn } from '@tanstack/table-core/src/types'
-// eslint-disable-next-line @typescript-eslint/ban-ts-comment
-// @ts-expect-error
-import { Table as TTable } from '@tanstack/table-core/build/lib/types'
+import type { OnChangeFn, Table as TTable } from '@tanstack/react-table'
 
 export interface DataTablePaginationProps<TData> {
   table: TTable<TData>
@@ -25,7 +20,7 @@ export interface DataTablePaginationProps<TData> {
 export function DataTablePagination<TData>({ table, withSelected }: DataTablePaginationProps<TData>) {
   return (
     <div className="flex items-center justify-between px-2">
-      <div className="flex-1 text-sm text-muted-foreground">
+      <div className="text-muted-foreground flex-1 text-sm">
         {withSelected ? (
           <>
             {table.getFilteredSelectedRowModel().rows.length} of {table.getFilteredRowModel().rows.length} row(s)

@@ -27,7 +27,7 @@ coverage
 # AI
 CLAUDE.md
 
-src/graphql/*.ts
-src/graphql/*.js
+src/graphql/generated/*.ts
+src/graphql/generated/*.js
 
 .env.*

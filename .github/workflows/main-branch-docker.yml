@@ -1,36 +1,12 @@
-name: NodeJS with Webpack
+name: Docker Build and Publish
 
 on:
   push:
-    branches: ['**']
-  pull_request:
-    branches: ['**']
+    branches: [main]
 
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - uses: oven-sh/setup-bun@v2
-
-      - name: Install dependencies
-        run: bun install --frozen-lockfile
-
-      - name: Codegen
-        run: bun run generate:graphql
-
-      - name: Run the tests
-        run: bun run test
-
-      - name: Build
-        run: bun run build
-        env:
-          CI: false
-
   docker:
     runs-on: ubuntu-latest
-    needs: build
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -53,10 +29,22 @@ jobs:
           file_name: .env.production
           fail_on_empty: true
           sort_keys: false
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@v2
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+      - name: Codegen
+        run: bun run generate:graphql
+      - name: Run the tests
+        run: bun run test
+      - name: Build
+        run: bun run build
+        env:
+          CI: false
       - name: Build and push
         uses: docker/build-push-action@v6
         with:
           context: .
           push: true
-          platforms: linux/amd64, linux/arm64
+          platforms: linux/amd64,linux/arm64
           tags: xcodeassociated/react-typescript-vite-template:latest
