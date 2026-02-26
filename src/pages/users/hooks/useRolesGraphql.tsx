@@ -1,10 +1,23 @@
 import { useEffect, useState } from 'react'
 import { Role } from '../api/usersApi.types'
-import { useGetAllPermissionsQuery } from '@/graphql/generated'
+import { graphql } from '@/graphql/generated/'
+import { useQuery } from '@apollo/client/react'
 
 export const useRolesGraphql = () => {
   const [roles, setRoles] = useState<Role[]>()
-  const { loading, error, data } = useGetAllPermissionsQuery({
+
+  const GetAllPermissionsDocument = graphql(`
+    query GetAllPermissions($page: Int, $size: Int, $sort: String, $direction: String) {
+      getAllPermissions(page: $page, size: $size, sort: $sort, direction: $direction) {
+        id
+        name
+      }
+    }
+  `)
+
+  // note: after the query or mutation is written in the .ts/.tsx file, execute: bun run graphql-codegen --config codegen.ts --verbose
+
+  const { loading, error, data } = useQuery(GetAllPermissionsDocument, {
     variables: {
       page: 0,
       size: 10,

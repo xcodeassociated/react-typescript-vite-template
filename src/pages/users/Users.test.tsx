@@ -2,7 +2,7 @@ import { beforeAll, afterAll, afterEach, describe, expect, it, vitest } from 'vi
 import { render, screen, waitFor } from '@testing-library/react'
 import React, { act } from 'react'
 import { BrowserRouter } from 'react-router-dom'
-import { GetAllPermissionsDocument } from '@/graphql/generated'
+import { GetAllPermissionsDocument } from '@/graphql/generated/graphql'
 import { store } from '@/store/store'
 import { http, HttpResponse } from 'msw'
 import { setupServer } from 'msw/node'
@@ -10,7 +10,7 @@ import { usersApi } from './api/usersApi'
 import { Provider } from 'react-redux'
 import '@/locales/i18n'
 import { ThemeProvider } from '@/components/theme-provider'
-import { MockedProvider } from '@apollo/client/testing'
+import { MockedProvider } from '@apollo/client/testing/react'
 
 const mockedRolesGql = {
   request: {

@@ -3,18 +3,18 @@ import ReactDOM from 'react-dom/client'
 import { Provider } from 'react-redux'
 import { persistor, store } from './store/store'
 import { PersistGate } from 'redux-persist/integration/react'
-import { ApolloClient, ApolloProvider, createHttpLink, InMemoryCache } from '@apollo/client'
-import { setContext } from '@apollo/client/link/context'
+import { ApolloClient, HttpLink, InMemoryCache } from '@apollo/client'
+import { SetContextLink } from '@apollo/client/link/context'
+import { ApolloProvider } from '@apollo/client/react'
 import { ReactKeycloakProvider } from '@react-keycloak/web'
+import keycloak from '@/lib/keycloak'
 import { AuthClientError, AuthClientEvent } from '@react-keycloak/core/lib/types'
 import { AuthClientTokens } from '@react-keycloak/core'
 import { BrowserRouter } from 'react-router-dom'
-import keycloak from '@/lib/keycloak'
+import { ThemeProvider } from '@/components/theme-provider'
 import App from './App'
 import '@/locales/i18n'
 import './App.css'
-
-import { ThemeProvider } from '@/components/theme-provider'
 
 const onKeycloakEvent = (_event: AuthClientEvent, error?: AuthClientError): void => {
   if (error) {
@@ -28,15 +28,16 @@ const onKeycloakTokens = (_tokens: AuthClientTokens): void => {
   // console.info("Keycloak token: " + JSON.stringify(tokens))
 }
 
-const httpLink = createHttpLink({
+const httpLink = new HttpLink({
   uri: import.meta.env.VITE_APP_BACKEND_URL + '/graphql',
 })
 
-const authLink = setContext((_, { headers }) => {
+const authLink = new SetContextLink((prevContext) => {
   const token = keycloak.token
+
   return {
     headers: {
-      ...headers,
+      ...prevContext.headers,
       authorization: token ? `Bearer ${token}` : '',
     },
   }
