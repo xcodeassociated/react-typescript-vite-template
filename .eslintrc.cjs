@@ -8,7 +8,7 @@ module.exports = {
     'prettier',
     'eslint-config-prettier',
   ],
-  ignorePatterns: ['dist', '.eslintrc.cjs'],
+  ignorePatterns: ['dist', '.eslintrc.cjs', 'src/graphql/generated'],
   parser: '@typescript-eslint/parser',
   plugins: ['react-refresh'],
   rules: {

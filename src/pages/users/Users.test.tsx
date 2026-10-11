@@ -60,20 +60,23 @@ server.events.on('request:start', ({ request }) => {
 
 describe('user component tests', () => {
   beforeAll(() => {
-    ;(global as any).EventSource = class {
-      url: string
-      readyState = 1
-      addEventListener = vitest.fn()
-      removeEventListener = vitest.fn()
-      close = vitest.fn()
-      dispatchEvent = vitest.fn()
-      onopen: ((ev: Event) => void) | null = null
-      onmessage: ((ev: MessageEvent) => void) | null = null
-      onerror: ((ev: Event) => void) | null = null
-      constructor(url: string) {
-        this.url = url
-      }
-    }
+    vitest.stubGlobal(
+      'EventSource',
+      class {
+        url: string
+        readyState = 1
+        addEventListener = vitest.fn()
+        removeEventListener = vitest.fn()
+        close = vitest.fn()
+        dispatchEvent = vitest.fn()
+        onopen: ((ev: Event) => void) | null = null
+        onmessage: ((ev: MessageEvent) => void) | null = null
+        onerror: ((ev: Event) => void) | null = null
+        constructor(url: string) {
+          this.url = url
+        }
+      },
+    )
 
     server.listen()
     act(() => store.dispatch(usersApi.util.resetApiState()))
@@ -85,7 +88,7 @@ describe('user component tests', () => {
   })
 
   afterAll(() => {
-    delete (global as any).EventSource
+    vitest.unstubAllGlobals()
     server.close()
   })
 
