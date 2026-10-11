@@ -268,7 +268,6 @@ const MultipleSelector = React.forwardRef<MultipleSelectorRef, MultipleSelectorP
       }
 
       void exec()
-      // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [debouncedSearchTerm, groupBy, open, triggerSearchOnFocus])
 
     const CreatableItem = () => {
@@ -346,7 +345,7 @@ const MultipleSelector = React.forwardRef<MultipleSelectorRef, MultipleSelectorP
       }
       // Using default filter in `cmdk`. We don't have to provide it.
       return undefined
-    }, [creatable, commandProps?.filter])
+    }, [creatable, commandProps])
 
     return (
       <Command
