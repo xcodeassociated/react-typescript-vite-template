@@ -7,6 +7,7 @@
 1. [Project Overview](#project-overview)
 2. [Common Development Commands](#common-development-commands)
    - [Running a Single Test](#running-a-single-test)
+   - [Local Login (Keycloak)](#local-login-keycloak)
 3. [Code‑Style & Conventions](#code‑style--conventions)
    - [Formatting (Prettier)](#formatting-prettier)
    - [Imports & Path Aliases](#imports--path‑aliases)
@@ -70,6 +71,26 @@ Agents often need to run or debug a specific test file. Use any of the following
 ```
 
 **Tip:** The double‑dash `--` separates the bun script arguments from the script itself.
+
+### Local Login (Keycloak)
+
+**CRITICAL:** Start the backend and the other app dependencies **before** the frontend is usable. `bun run dev` serves the shell on `http://localhost:3000` either way, but signing in and any data page (e.g. `/users`) will not work until these are up:
+
+| Dependency             | URL                     | Used by                          |
+| ---------------------- | ----------------------- | -------------------------------- |
+| Keycloak               | `http://localhost:8090` | `VITE_APP_KEYCLOAK_URL` (login)  |
+| Backend REST/GraphQL   | `http://localhost:8080` | `VITE_APP_BACKEND_URL` (`/users`)|
+| Kafka, PostgreSQL      | internal                | Keycloak storage & events        |
+
+They run in the separate `dev-infra` compose stack – bring them up first, then `bun run dev`.
+
+* **Login**: user menu (top right) → **Login** → Keycloak “Sign in to your account” → **Sign In**.
+* **Logout**: user menu → **Logout** (drops the `Counter` / `Users` nav entries again).
+* **Credentials**: realm `app`, client `frontend`, user `user` / `user@user.com` – stored in the git‑ignored `.credentials` file. Never commit it and never print the password; the trailing `?` **is** part of it.
+* **Missing `.credentials`**: if that file is not present, **stop and inform the developer** – logging in is not possible without it. Do not guess credentials, do not create the file yourself, and do not reset any password unless the developer explicitly asks you to.
+* **Verified success**: `Counter` and `Users` appear in the nav and requests to `localhost:8080` return `200`.
+
+**Browser MCP**: use the **Playwright** MCP (`browser_navigate`, `browser_snapshot`, `browser_find`, `browser_click`, `browser_type`, `browser_evaluate`, `browser_take_screenshot`) – no Chrome‑specific MCP is configured. Keycloak only logs *failed* logins (`LOGIN_ERROR`) to stdout, so confirm success from the UI/network, not from `docker logs`.
 
 ---
 

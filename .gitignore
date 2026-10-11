@@ -31,3 +31,8 @@ src/graphql/generated/*.ts
 src/graphql/generated/*.js
 
 .env.*
+.credentials
+
+# Browser MCP artifacts
+.playwright-mcp/
+*-snapshot.yml
