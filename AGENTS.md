@@ -1,255 +1,99 @@
----
 # AGENTS.md – Guidelines for Automated Agents
----
-
-## 📋 Table of Contents
-
-1. [Project Overview](#project-overview)
-2. [Common Development Commands](#common-development-commands)
-   - [Running a Single Test](#running-a-single-test)
-   - [Local Login (Keycloak)](#local-login-keycloak)
-3. [Code‑Style & Conventions](#code‑style--conventions)
-   - [Formatting (Prettier)](#formatting-prettier)
-   - [Imports & Path Aliases](#imports--path‑aliases)
-   - [TypeScript Rules](#typescript-rules)
-   - [Naming Conventions](#naming-conventions)
-   - [Error Handling](#error-handling)
-   - [React & JSX Guidelines](#react--jsx-guidelines)
-   - [Redux Toolkit Patterns](#redux‑toolkit-patterns)
-   - [Apollo GraphQL Usage](#apollo‑graphql-usage)
-   - [Testing Practices (Vitest & RTL)](#testing-practices-vitest--rtl)
-4. [Linting & CI Details](#linting--ci-details)
-5. [Cursor / Copilot Rules (if any)](#cursor--copilot-rules-if-any)
-6. [Helpful References for Agents](#helpful-references-for-agents)
-
----
 
 ## Project Overview
 
-- **Tech Stack**: React 18, TypeScript, Vite, Tailwind CSS, Redux Toolkit (with persistence), Apollo Client, Keycloak, i18next.
-- **Package Manager**: `bun`. All scripts are defined in `package.json` and are **compatible with `bun run <script>`**.
-- **Path Alias**: `@/*` resolves to `src/*` (defined in `vite.config.ts` & `tsconfig.json`).
-- **Code Generation**: GraphQL types & hooks are generated via `bun run generate:graphql`.
-- **Testing**: Vitest + React Testing Library + MSW for API mocking.
-- **Formatting**: Prettier with `prettier-plugin-tailwindcss` (installed but configuration falls back to defaults).
+- **Purpose**: Frontend **service template** for rapidly prototyping web apps. Auth (Keycloak), state, REST + GraphQL API access, i18n, theming, UI kit, tests, Docker and CI are pre-wired; example pages (`counter`, `users`) demonstrate the intended patterns. See `README.md`.
+- **Tech stack**: React 19, TypeScript (strict), Vite 7 + SWC, Tailwind CSS **v4 (CSS-first, no `tailwind.config.js`)**, shadcn/ui + Radix, Redux Toolkit + `redux-persist` + RTK Query, Apollo Client **v4**, `keycloak-js` 26, i18next, react-hook-form + zod, Vitest 4 + RTL + MSW.
+- **Package manager**: `bun` only (never npm/pnpm/yarn). Node ≥ 22.12.0 (`.nvmrc`, `engines`).
+- **Path alias**: `@/*` → `src/*` (defined in `tsconfig.json`/`tsconfig.app.json`; Vite resolves it via `vite-tsconfig-paths` plus an explicit alias in `vite.config.ts`).
+- **Dev server**: `http://localhost:3000` (host `0.0.0.0`).
 
----
+## Key Paths
 
-## Common Development Commands
+| Path | What lives there |
+| --- | --- |
+| `src/main.tsx` | Provider tree: Keycloak → Theme → Redux(+persist) → Router → Apollo |
+| `src/App.tsx` | Layout, routes, menu, `ProtectedRoute` guards |
+| `src/lib/keycloak.ts` | Keycloak instance: realm `app`, client `frontend`, URL from `VITE_APP_KEYCLOAK_URL` |
+| `src/components/ui/` | shadcn primitives (generated; some lint rules relaxed here) |
+| `src/components/custom/`, `src/components/app/` | Project components (data table, cookie consent, nav, user menu…) |
+| `src/pages/<feature>/` | Feature pages with colocated `api/`, `components/`, `hooks/`, tests |
+| `src/graphql/schema.graphql` → `src/graphql/generated/` | Codegen input → output (client preset, fragment masking) |
+| `src/store/` | Redux store setup + typed `useAppDispatch`/`useAppSelector` |
+| `src/locales/` | i18next init + `en_US.json`, `pl_PL.json` |
+| `.github/workflows/` | `ci.yml` (install → codegen → test → build) and `main-branch-docker.yml` (multi-arch image publish on `main`/`release/*`) |
 
-**CRITICAL:** Before running any tests or building the project, **always regenerate the GraphQL files** to ensure they are up‑to‑date. Run:
+## Commands
 
-```bash
-bun run generate:graphql
-```
+**CRITICAL:** Always run `bun run generate:graphql` **before** `bun run test` or `bun run build` (CI does this too). It regenerates `src/graphql/generated/` from `src/graphql/schema.graphql` and documents found in `src/**/*.{ts,tsx,graphql}`.
 
-This command re‑generates the GraphQL types and hooks (e.g., `src/graphql/generated.ts`). It must be executed any time the GraphQL schema changes and must be run before `bun run test` or `bun run build`. Ensure this step is included in any CI pipeline or local workflow.
-
-| Command                    | Description                                                         |
-| -------------------------- | ------------------------------------------------------------------- |
-| `bun run dev`              | Starts Vite dev server (default port 3000).                         |
-| `bun run build`            | Type‑checks (`tsc -b`) then produces production bundle.             |
-| `bun run preview`          | Serves the production build locally (`vite preview`).               |
-| `bun run prod`             | Serves built assets with `serve -s dist`.                           |
-| `bun run lint`             | Runs ESLint with `--max-warnings 0` – any warning fails the CI.     |
-| `bun run test`             | Executes **all** Vitest tests in CI mode (`--run`).                 |
-| `bun run test:ui`          | Opens Vitest UI for interactive debugging.                          |
-| `bun run coverage`         | Generates coverage report (`--coverage`).                           |
-| `bun run generate:graphql` | Re‑generates GraphQL hooks/types from `src/graphql/schema.graphql`. |
+| Command | Description | Verified |
+| --- | --- | --- |
+| `bun run dev` | Vite dev server on port 3000 | – |
+| `bun run build` | Production bundle (`vite build`; no separate `tsc` step) | ✓ passes |
+| `bun run preview` / `bun run prod` | Serve build locally (`vite preview` / `serve -s dist`) | – |
+| `bun run lint` | ESLint flat config (`eslint.config.mjs`), `--max-warnings 0` | ✗ currently fails (see Gotchas) |
+| `bun run test` | All Vitest tests once (`vitest --run`) | ✓ 3 files / 6 tests pass |
+| `bun run test:ui` / `bun run coverage` | Vitest UI / V8 coverage | – |
+| `bun run generate:graphql` | Regenerate GraphQL types/hooks | ✓ passes |
 
 ### Running a Single Test
 
-Agents often need to run or debug a specific test file. Use any of the following patterns:
-
 ```bash
-# Run a specific file (absolute or relative to repo root)
-  bun run test -- src/components/Button.test.tsx
-# Run tests matching a test name / regex pattern
-  bun run test -- -t "Button renders correctly"
-# Run only tests in a focused file (Vitest `--run` + `--watch` optional)
-  bun run test -- src/pages/dashboard/Dashboard.test.ts --run
+bun run test -- src/App.test.tsx            # one file
+bun run test -- -t "renders correctly"      # by test name
 ```
 
-**Tip:** The double‑dash `--` separates the bun script arguments from the script itself.
+## Local Login (Keycloak)
 
-### Local Login (Keycloak)
+The frontend shell renders standalone, but login and data pages (`/users`) require the backend stack — provided by the companion backend template repo [spring-reactive-template](https://github.com/xcodeassociated/spring-reactive-template), run locally as the `dev-infra` compose stack — start it **before** `bun run dev`:
 
-**CRITICAL:** Start the backend and the other app dependencies **before** the frontend is usable. `bun run dev` serves the shell on `http://localhost:3000` either way, but signing in and any data page (e.g. `/users`) will not work until these are up:
+| Dependency | URL | Used by |
+| --- | --- | --- |
+| Keycloak | `http://localhost:8090` | `VITE_APP_KEYCLOAK_URL` (login) |
+| Backend REST/GraphQL | `http://localhost:8080` | `VITE_APP_BACKEND_URL` (`/users`, `/graphql`) |
+| Kafka, PostgreSQL | internal | Keycloak storage & events |
 
-| Dependency             | URL                     | Used by                          |
-| ---------------------- | ----------------------- | -------------------------------- |
-| Keycloak               | `http://localhost:8090` | `VITE_APP_KEYCLOAK_URL` (login)  |
-| Backend REST/GraphQL   | `http://localhost:8080` | `VITE_APP_BACKEND_URL` (`/users`)|
-| Kafka, PostgreSQL      | internal                | Keycloak storage & events        |
+- **Login**: user menu (top right) → **Login** → Keycloak sign-in. **Logout** hides the `Counter`/`Users` nav entries again.
+- **Credentials**: realm `app`, client `frontend`, user `user` / `user@user.com` – stored in the git-ignored `.credentials` file. Never commit or print the password; the trailing `?` **is** part of it.
+- **Missing `.credentials`**: stop and inform the developer. Do not guess credentials, create the file, or reset passwords unless explicitly asked.
+- **Verified success**: `Counter` and `Users` appear in the nav and requests to `localhost:8080` return `200`.
+- **Browser MCP**: use the Playwright MCP (`browser_navigate`, `browser_snapshot`, `browser_click`, …). Keycloak only logs *failed* logins (`LOGIN_ERROR`), so confirm success from the UI/network, not `docker logs`.
 
-They run in the separate `dev-infra` compose stack – bring them up first, then `bun run dev`.
+## Conventions
 
-* **Login**: user menu (top right) → **Login** → Keycloak “Sign in to your account” → **Sign In**.
-* **Logout**: user menu → **Logout** (drops the `Counter` / `Users` nav entries again).
-* **Credentials**: realm `app`, client `frontend`, user `user` / `user@user.com` – stored in the git‑ignored `.credentials` file. Never commit it and never print the password; the trailing `?` **is** part of it.
-* **Missing `.credentials`**: if that file is not present, **stop and inform the developer** – logging in is not possible without it. Do not guess credentials, do not create the file yourself, and do not reset any password unless the developer explicitly asks you to.
-* **Verified success**: `Counter` and `Users` appear in the nav and requests to `localhost:8080` return `200`.
+- **Formatting** (Prettier via ESLint, `.prettierrc.json`): **no semicolons**, single quotes, `printWidth: 120`, 2-space indent, trailing commas (es5), Tailwind class sorting via `prettier-plugin-tailwindcss`.
+- **ESLint** (`eslint.config.mjs`, flat config): `eslint:recommended` + `@typescript-eslint/recommended` + `react-hooks/recommended` + prettier, plus **`@shadcn/lint` error-level rules** (`no-arbitrary-values`, `no-raw-colors`, `no-inline-styles`, `require-static-classes`, `no-restyle` with `layout` allowed). These apply to all code **except `src/components/ui/**`** — write app UI with theme tokens and static Tailwind classes, not one-off values. `dist`, `coverage` and `src/graphql/generated` are ignored.
+- **Styling**: Tailwind classes only; theme tokens are defined CSS-first in `src/App.css` (`@theme`, shadcn HSL variables). There is no `tailwind.config.js`.
+- **TypeScript**: `strict`, `noImplicitAny`, `noUnusedLocals/Parameters`. Never `any` — use `unknown` or a precise type. Explicit return types for exported functions/components. Prefer `interface` for object shapes, union literals over enums.
+- **GraphQL (Apollo 4)**: write inline typed documents with the `graphql` template literal from `@/graphql/generated/` and execute via `useQuery`/`useMutation` from `@apollo/client/react` (see `src/pages/users/hooks/useRolesGraphql.tsx`). There are **no generated `useXxxQuery` hooks**. The token is attached by `authLink` in `src/main.tsx` — never set `Authorization` manually in components.
+- **REST**: use RTK Query slices (see `src/pages/users/api/usersApi.ts`, base URL `VITE_APP_BACKEND_URL + '/coroutine'`); `prepareHeaders` injects the Keycloak token.
+- **Redux**: one slice per domain, Immer mutations in reducers, async in `createAsyncThunk`; typed hooks from `src/store/hooks.ts`.
+- **Auth-gated routes**: wrap with `ProtectedRoute predicate={keycloak?.authenticated}` in `src/App.tsx` and mark menu items `restricted: true`.
+- **i18n**: all user-facing strings via `useTranslation` (`main` namespace, `src/locales/lang/*.json`); language switcher lives in the user dropdown.
+- **Naming**: components PascalCase; props types `…Props`; hooks `useCamelCase`; files/dirs kebab-case (except component files); env vars `VITE_APP_*`.
+- **Imports**: external → blank line → `@/` absolute → relative; alphabetized within groups; side-effect imports after externals.
+- **Testing**: colocate `Component.test.tsx`; MSW `setupServer` is set up **inside test files** (see `src/pages/users/Users.test.tsx`); `src/setupTests.ts` only bootstraps jest-dom matchers and browser-API mocks. Aim for ≥90% coverage on new code.
 
-**Browser MCP**: use the **Playwright** MCP (`browser_navigate`, `browser_snapshot`, `browser_find`, `browser_click`, `browser_type`, `browser_evaluate`, `browser_take_screenshot`) – no Chrome‑specific MCP is configured. Keycloak only logs *failed* logins (`LOGIN_ERROR`) to stdout, so confirm success from the UI/network, not from `docker logs`.
+## Gotchas
 
----
+- **`bun run lint` currently fails** (~76 `shadcn/*` errors in pre-existing components) because the ESLint flat-config migration is in progress in the working tree (`.eslintrc.cjs` deleted, `eslint.config.mjs` untracked). Do not "fix" unrelated components just to green the lint run; flag it to the developer. CI does **not** run lint.
+- `bun run build` does **not** type-check (`vite build` only). Type-check manually with `bunx tsc -b` when touching types.
+- CI (`ci.yml`) runs install → `generate:graphql` → `test` → `build`. It does **not** run lint or coverage.
+- `src/graphql/generated/` is git-ignored and regenerated — if tests/build complain about missing `graphql` exports, run `bun run generate:graphql` first.
+- Keycloak `onLoad: 'check-sso'` with `silent-check-sso.html` from `public/`; `checkLoginIframe: false`. Auth state arrives asynchronously — `App.tsx` renders `LoadingScreen` until `initialized`.
+- Vitest `globals: true` + jsdom are configured inside `vite.config.ts` (not a separate vitest config file).
+- Build warns about chunk size >500 kB — known, not blocking.
 
-## Code‑Style & Conventions
+## Agent Restrictions
 
-All agents should respect the linting rules defined in `.eslintrc.cjs`. The following conventions are **enforced** (or strongly recommended) by that config and the project's overall philosophy.
+- Never modify auto-generated files, especially `src/graphql/generated/**`.
+- Never commit without explicit user permission; always ask for review before any `git add`/`git commit`.
+- Avoid code changes directly on `main`/`master`; work on a feature branch and ask permission before creating one (this repo currently has uncommitted work on `main` — check `git status` first).
+- Use `bun` for every dependency/command; if missing, tell the developer (suggest `curl -fsSL https://bun.sh/install | bash`). Before any `node` call, ensure nvm is available and the right version selected; if nvm is missing, inform the developer.
+- Do not modify files outside the project directory.
+- **Keep `README.md` current.** Whenever development changes anything the README documents (features, commands, scripts, environment variables, tech stack, project structure, setup/deployment steps), update `README.md` in the same change before considering the work done. The README must always reflect the current state of the project; never finish a task that leaves it stale.
 
-### Formatting (Prettier)
+## Maintaining This File
 
-- Use **2‑space indentation** (Prettier default).
-- **Trailing commas** where valid (objects, arrays, function parameters).
-- **Single‑quotes** for strings, **double‑quotes** only when the string contains a single‑quote.
-- **Semi‑colons** are required (`semi: true`).
-- **Tailwind ordering**: thanks to `prettier-plugin-tailwindcss`, class names are automatically sorted alphabetically.
-- Run `bun run lint` (which runs ESLint with Prettier integration) before committing.
-
-### Imports & Path Aliases
-
-1. **Group order** – separate with a blank line:
-
-   ```ts
-   // 1️⃣ External packages
-   import React from 'react'
-   import { useQuery } from '@apollo/client'
-
-   // 2️⃣ Internal absolute imports (using @ alias)
-   import { Button } from '@/components/ui/Button'
-   import { useAppDispatch } from '@/store/hooks'
-
-   // 3️⃣ Relative imports for sibling files
-   import type { Props } from './MyComponent.types'
-   import './MyComponent.css'
-   ```
-
-2. **Side‑effect only imports** (`import './polyfills';`) should appear **after** external imports but **before** internal imports.
-3. **Alphabetical within groups**.
-4. **Avoid wildcard imports** (`import * as Foo from ...`) unless you need the whole namespace.
-5. **Prefer named imports** over default when the exported module provides multiple members.
-
-### TypeScript Rules
-
-- **`noImplicitAny`** and **`strict`** are enabled – never use `any`; prefer `unknown` or a precise type.
-- **Explicit return types** for exported functions and React components.
-- **Prefer `interface`** for object shapes that are extended; use `type` for unions, primitives, or tuples.
-- **Readonly** for props and state objects that never change (`Readonly<T>` or `as const`).
-- **Utility Types** (`Partial`, `Pick`, `Omit`) should be used sparingly – keep them readable.
-- **Zod** is the validation library; always validate external data (`safeParse`) before using it.
-- **Enums** only for a **closed set of string literals** that need runtime values; otherwise use union string literals.
-
-### Naming Conventions
-
-| Entity               | Convention                                                         | Example                           |
-| -------------------- | ------------------------------------------------------------------ | --------------------------------- |
-| Components           | **PascalCase** (+ optional `Component` suffix)                     | `UserCard`, `SettingsModal`       |
-| Props types          | PascalCase ending in `Props`                                       | `UserCardProps`                   |
-| Hooks                | `use` prefix + **camelCase**                                       | `useAuth`, `useFetchUsers`        |
-| Redux slices         | `camelCase` slice name, file `sliceNameSlice.ts`                   | `counterSlice`                    |
-| Actions / thunks     | `camelCase` prefixed with verb                                     | `fetchUserById`                   |
-| Constants / env vars | **SCREAMING_SNAKE_CASE** (env vars start with `VITE_`)             | `VITE_APP_BACKEND_URL`            |
-| Files & directories  | **kebab-case** (except React component files which use PascalCase) | `user-profile/`, `login-form.tsx` |
-
-### Error Handling
-
-- **Async functions**: `try { … } catch (err) { /* handle */ }` – re‑throw only if the caller can do something useful.
-- **Network / GraphQL errors**: map to user‑friendly messages; never expose raw stack traces.
-- **Zod validation**: use `result.success ? result.data : handleError(result.error)`.
-- **React error boundaries**: provide a fallback UI for unexpected render errors.
-- **Redux Toolkit**: `createAsyncThunk` automatically provides `rejected` action payload – keep error messages concise.
-
-### React & JSX Guidelines
-
-- **Functional components only** – no class components.
-- **Hook Rules**: call hooks at the top level, never inside conditions or loops.
-- **Destructure props** directly in the function signature when possible.
-- **JSX Props**: boolean props omitted when true (`<Button disabled />`).
-- **Conditional rendering**: use `&&` for simple cases, ternary for two alternatives, avoid nested ternaries.
-- **Memoization**: `useMemo` for expensive calculations, `useCallback` for stable callbacks passed to children.
-- **Styling**: Tailwind classes **only** – no custom CSS unless required for animations.
-- **ARIA**: ensure accessible attributes (`aria-label`, `role`, etc.) are present on interactive elements.
-
-### Redux Toolkit Patterns
-
-```ts
-// store/store.ts – typed hooks
-export const useAppDispatch = () => useDispatch<AppDispatch>()
-export const useAppSelector: TypedUseSelectorHook<RootState> = useSelector
-```
-
-- **Slices** should be kept small – one slice per domain.
-- **Immer** is used automatically; mutate state directly in reducers.
-- **Async logic** lives in `createAsyncThunk`; keep reducers pure.
-- **Selectors** are memoized with `createSelector` when derived data is expensive.
-
-### Apollo GraphQL Usage
-
-- **Generated hooks** (`useGetUserQuery`, `useUpdateUserMutation`) are the only way to interact with the API.
-- **Error/Loading** handling pattern:
-  ```tsx
-  const { data, loading, error } = useGetUserQuery({ variables: { id } })
-  if (loading) return <Spinner />
-  if (error) return <ErrorMessage error={error} />
-  // render UI with data
-  ```
-- **Cache updates**: use `refetchQueries` or the `update` function for mutations that affect the cache.
-- **Authentication**: token is injected via Apollo `authLink` – never manually attach `Authorization` header in components.
-
-### Testing Practices (Vitest & RTL)
-
-- **File naming**: `ComponentName.test.tsx` placed alongside the component or in `__tests__/`.
-- **Test runner**: `bun run test` (CI) or `bun run test:ui` for debugging.
-- **Render**: use `render(<Component …/>)` from `@testing-library/react`.
-- **Assertions**: prefer `expect(element).toBeInTheDocument()` and `toHaveAttribute`.
-- **Mocking**: use **MSW** for network calls; define handlers in `src/mocks/handlers.ts`.
-- **Coverage**: aim for **≥ 90 %** on new/changed code; `bun run coverage` will output the report.
-- **Selective test runs**: use `.only` or the `-t` flag (see _Running a Single Test_ above).
-
----
-
-## Linting & CI Details
-
-- The **ESLint** config extends `eslint:recommended`, `@typescript-eslint/recommended`, and `plugin:react-hooks/recommended`.
-- **Prettier** is enforced via `eslint-config-prettier` – any formatting deviation is reported as an ESLint error.
-- **`bun run lint`** fails on **any warning** (`--max-warnings 0`).
-- CI (GitHub Actions) runs `bun install && bun run lint && bun run test && bun run coverage`.
-- No `--fix` flag is used in CI – agents must commit correctly formatted code.
-
----
-
-## Cursor / Copilot Rules (if any)
-
-The repository does **not** contain a `.cursor/` directory or a `.github/copilot-instructions.md` file, so there are no additional cursor‑specific or Copilot‑specific guidelines to enforce.
-
----
-
-## Helpful References for Agents
-
-- **Vite Guide** – https://vitejs.dev/guide/
-- **Vitest Docs** – https://vitest.dev/guide/
-- **React Hook Rules** – https://reactjs.org/docs/hooks-rules.html
-- **Redux Toolkit FAQ** – https://redux-toolkit.js.org/faq
-- **Apollo Client Docs** – https://www.apollographql.com/docs/react/
-- **Zod Handbook** – https://zod.dev/
-- **Tailwind CSS** – https://tailwindcss.com/docs
-- **Prettier Plugin TailwindCSS** – https://github.com/tailwindlabs/prettier-plugin-tailwindcss
-
----
-
-**Agent Restrictions**: Agents must not modify any files outside the project directory.
-
-**CRITICAL:** Agents must **never** modify any auto‑generated files (e.g., GraphQL generated files such as `src/graphql/generated.ts`).
-
-**CRITICAL:** Agents must **never** commit any changes without **explicit user permission**. ALWAYS ask for review and obtain approval **before** running any `git add` / `git commit` commands.
-
-**Shell Environment**: Agents should execute commands using **zsh** (as the user’s default shell) to ensure compatibility with tools installed in that environment.
-
-**Node Version Management**: Agents must always verify that **nvm** (Node Version Manager) is installed before invoking any `node` commands. If `nvm` is not available, they should inform the user and suggest installing it. Agents should never run Node directly without first ensuring the appropriate version is selected via `nvm`.
-
-**Package Manager Preference**: All dependency management should be performed using **bun**. **Important:** Always use `bun` for all commands in this project; any other package manager must not be used. Agents must use `bun install` (or `bun add`/`bun remove` as appropriate) instead of any other package manager. Before running any bun command, agents must check that **bun** is installed; if it is missing, they should inform the user and suggest installing bun (e.g., via `curl -fsSL https://bun.sh/install | bash`).
-
-**Branch Management**: Agents must avoid making code changes directly on the **main** (or **master**) branch. Any modification to code should be performed on a separate feature branch. Agents should always ask for explicit user permission before creating a new branch, and must recommend creating one when working on the main branch.
-
-_End of file – agents should keep this document up to date as the project evolves._
+Update this guide when commands, scripts, CI steps, provider wiring, lint configs or the dev-infra topology change. Prefer deleting stale guidance over annotating it; verify any command you document by running it (or mark it unverified).
