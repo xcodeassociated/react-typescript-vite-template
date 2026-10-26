@@ -93,7 +93,8 @@ The frontend shell renders standalone, but login and data pages (`/users`) requi
 - Use `bun` for every dependency/command; if missing, tell the developer (suggest `curl -fsSL https://bun.sh/install | bash`). Before any `node` call, ensure nvm is available and the right version selected; if nvm is missing, inform the developer.
 - Do not modify files outside the project directory.
 - **Keep `README.md` current.** Whenever development changes anything the README documents (features, commands, scripts, environment variables, tech stack, project structure, setup/deployment steps), update `README.md` in the same change before considering the work done. The README must always reflect the current state of the project; never finish a task that leaves it stale.
+- **Keep `AGENTS.md` current.** Whenever development changes anything this guide documents (build/run/test/lint commands, scripts, CI steps, provider/auth wiring, lint or formatting config, project structure, conventions, gotchas, or the dev-infra topology), update `AGENTS.md` in the same change before considering the work done. Never finish a task that leaves this guide stale — delete outdated guidance rather than annotating it, and verify any command you document by running it (or mark it unverified).
 
-## Maintaining This File
+## Maintaining This File and README.md
 
-Update this guide when commands, scripts, CI steps, provider wiring, lint configs or the dev-infra topology change. Prefer deleting stale guidance over annotating it; verify any command you document by running it (or mark it unverified).
+Both docs must stay current with the code — see the two "Keep … current" rules in Agent Restrictions. Update this guide when commands, scripts, CI steps, provider wiring, lint configs or the dev-infra topology change; update `README.md` when user-facing features, structure, setup or deployment change. Prefer deleting stale guidance over annotating it; verify any command you document by running it (or mark it unverified).
